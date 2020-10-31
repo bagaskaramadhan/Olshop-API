@@ -1,5 +1,6 @@
 const model = require('../model/product')
 const upload = require('../helper/upload')
+const fs = require('fs')
 
 const controllerProduct = {
     getAll: (req, res) => {
@@ -43,15 +44,52 @@ const controllerProduct = {
         }
     },
     update: (req, res) => {
-        const id = req.params.product_id
-        const body = req.body
-        model.update(body, id)
-            .then((result) => {
-                res.json(result)
-            })
-            .catch((err) => {
+        upload.single('image')(req, res, (err) => {
+            if (err) {
                 console.log(err)
-            })
+            } else {
+                const id = req.params.product_id
+                const body = req.body
+                model.check(id)
+                    .then((result) => {
+                        const Oldimage = result[0].image
+                        body.image = !req.file ? Oldimage : req.file.filename
+                        if (body.image !== Oldimage) { // Jika imagenya bukan gambar lama
+                            if (Oldimage !== 'default.png') { // Jika Gambar lama bukan default
+                                fs.unlink(`src/upload/${Oldimage}`, (err) => {
+                                    if (err) {
+                                        console.log(err)
+                                    } else {
+                                        model.update(body, id)
+                                            .then((result) => {
+                                                res.json(result)
+                                            })
+                                            .catch((err) => {
+                                                console.log(err)
+                                            })
+                                    }
+                                })
+                            } else {
+                                model.update(body, id)
+                                    .then((result) => {
+                                        res.json(result)
+                                    })
+                                    .catch((err) => {
+                                        console.log(err)
+                                    })
+                            }
+                        } else {
+                            model.update(body, id)
+                                .then((result) => {
+                                    res.json(result)
+                                })
+                                .catch((err) => {
+                                    console.log(err)
+                                })
+                        }
+                    })
+            }
+        })
     },
     deleted: (req, res) => {
         const id = req.params.product_id
@@ -66,12 +104,12 @@ const controllerProduct = {
     detail: (req, res) => {
         const id = req.params.product_id
         model.detail(id)
-        .then((result) => {
-            res.json(result)
-        })
-        .catch((err) => {
-            console.log(err)
-        })
+            .then((result) => {
+                res.json(result)
+            })
+            .catch((err) => {
+                console.log(err)
+            })
     }
 }
 

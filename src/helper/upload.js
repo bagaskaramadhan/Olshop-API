@@ -1,11 +1,11 @@
 const multer = require('multer')
 
 const storage = multer.diskStorage({
-    destination: (req, file, callback) => {
+    destination: (req, res, callback) => {
         callback(null, `src/upload`)
     },
     filename: (req, file, callback) => {
-        callback(null, `${file.fieldname}-${Date.now()}.png`)
+        callback(null, `${Date.now()}-${file.originalname}`)
     }
 })
 

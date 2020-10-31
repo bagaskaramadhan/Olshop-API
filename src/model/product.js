@@ -58,6 +58,20 @@ const modelProduct = {
     },
     detail: (id) => {
         return new Promise((resolve, reject) => {
+            db.query(`SELECT product.product_id, product.product_name, category.category_name, product.description, product.stock, product.price, product.image
+            FROM product INNER JOIN category
+            ON product.product_category = category.category_id
+            WHERE product_id = ?`, id, (err, result) => {
+                if (err) {
+                    reject(new Error(err))
+                } else {
+                    resolve(result)
+                }
+            })
+        })
+    },
+    check: (id) => {
+        return new Promise((resolve, reject) => {
             db.query(`SELECT * FROM product WHERE product_id = ?`, id, (err, result) => {
                 if (err) {
                     reject(new Error(err))
