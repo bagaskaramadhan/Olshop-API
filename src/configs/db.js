@@ -9,7 +9,7 @@ const connection = db.createConnection({
 
 connection.connect((err) => {
     if (err) {
-        console.log(`CANNOT CONNECT TO ${DATABASE}`)
+        console.log(`Failed Connect`)
     } else {
         console.log(`CONNECTED ON ${DATABASE}`)
     }
