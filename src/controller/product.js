@@ -1,6 +1,7 @@
 const model = require('../model/product')
 const upload = require('../helper/upload')
 const fs = require('fs')
+const { Success, Failed } = require('../helper/response')
 
 const controllerProduct = {
     getAll: (req, res) => {
@@ -13,7 +14,7 @@ const controllerProduct = {
             const offset = page === 1 ? 0 : (page - 1) * limit
             model.getAll(name, limit, offset, field, order)
                 .then((result) => {
-                    res.json(result)
+                    Success(res, result, "Success Get All Data")
                 })
                 .catch((err) => {
                     console.log(err)
@@ -26,13 +27,17 @@ const controllerProduct = {
         try {
             upload.single('image')(req, res, (err) => {
                 if (err) {
-                    console.log(err)
+                    if (err.code === 'LIMIT_FILE_SIZE') {
+                        Failed(res, [], 'Large Image')
+                    } else {
+                        Failed(res, [], err)
+                    }
                 } else {
                     const body = req.body
                     body.image = !req.file ? 'default.png' : req.file.filename
                     model.insert(body)
                         .then((result) => {
-                            res.json(result)
+                            Success(res, result, 'Success Insert Data')
                         })
                         .catch((err) => {
                             console.log(err)
@@ -46,7 +51,11 @@ const controllerProduct = {
     update: (req, res) => {
         upload.single('image')(req, res, (err) => {
             if (err) {
-                console.log(err)
+                if (err.code === 'LIMIT_FILE_SIZE') {
+                    Failed(res, [], 'Large Image')
+                } else {
+                    Failed(res, [], err)
+                }
             } else {
                 const id = req.params.product_id
                 const body = req.body
@@ -62,7 +71,7 @@ const controllerProduct = {
                                     } else {
                                         model.update(body, id)
                                             .then((result) => {
-                                                res.json(result)
+                                                Success(res, result, 'Success Update Image')
                                             })
                                             .catch((err) => {
                                                 console.log(err)
@@ -72,7 +81,7 @@ const controllerProduct = {
                             } else {
                                 model.update(body, id)
                                     .then((result) => {
-                                        res.json(result)
+                                        Success(res, result, 'Success Update Image')
                                     })
                                     .catch((err) => {
                                         console.log(err)
@@ -81,7 +90,7 @@ const controllerProduct = {
                         } else {
                             model.update(body, id)
                                 .then((result) => {
-                                    res.json(result)
+                                    Success(res, result, 'Success Update Image')
                                 })
                                 .catch((err) => {
                                     console.log(err)
@@ -95,7 +104,7 @@ const controllerProduct = {
         const id = req.params.product_id
         model.deleted(id)
             .then((result) => {
-                res.json(result)
+                Success(res, result, 'Success Delete Data')
             })
             .catch((err) => {
                 console.log(err)
@@ -105,7 +114,7 @@ const controllerProduct = {
         const id = req.params.product_id
         model.detail(id)
             .then((result) => {
-                res.json(result)
+                Success(res, result, 'Success Get Detail Data')
             })
             .catch((err) => {
                 console.log(err)
