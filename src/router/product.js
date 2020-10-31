@@ -1,5 +1,5 @@
 const express = require('express')
-const {getAll, insert, update, deleted} = require('../controller/product')
+const {getAll, insert, update, deleted, detail} = require('../controller/product')
 const router = express.Router()
 
 router
@@ -7,5 +7,6 @@ router
 .post('/insert', insert)
 .patch('/update/:product_id', update)
 .delete('/deleted/:product_id', deleted)
+.get('/detail/:product_id', detail)
 
 module.exports = router

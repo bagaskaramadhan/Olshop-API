@@ -4,7 +4,13 @@ const upload = require('../helper/upload')
 const controllerProduct = {
     getAll: (req, res) => {
         try {
-            model.getAll()
+            const field = !req.query.field ? "product_id" : req.query.field
+            const order = !req.query.order ? 'ASC' : req.query.order
+            const name = !req.query.name ? "" : req.query.name
+            const limit = !req.query.limit ? 5 : parseInt(req.query.limit)
+            const page = !req.query.page ? 1 : parseInt(req.query.page)
+            const offset = page === 1 ? 0 : (page - 1) * limit
+            model.getAll(name, limit, offset, field, order)
                 .then((result) => {
                     res.json(result)
                 })
@@ -56,6 +62,16 @@ const controllerProduct = {
             .catch((err) => {
                 console.log(err)
             })
+    },
+    detail: (req, res) => {
+        const id = req.params.product_id
+        model.detail(id)
+        .then((result) => {
+            res.json(result)
+        })
+        .catch((err) => {
+            console.log(err)
+        })
     }
 }
 

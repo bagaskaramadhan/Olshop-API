@@ -1,9 +1,16 @@
 const db = require('../configs/db')
 
 const modelProduct = {
-    getAll: () => {
-        return new Promise((resolve,reject) => {
-            db.query(`SELECT * FROM product`, (err, result) => {
+    getAll: (name, limit, offset, field, order) => {
+        return new Promise((resolve, reject) => {
+            db.query(`SELECT 
+            product.product_id, product.product_name, product.product_category, product.description, 
+            product.stock, product.price, product.image, category.category_name
+            FROM product INNER JOIN category
+            ON category.category_id = product.product_category
+            WHERE product_name LIKE '%${name}%'
+            ORDER BY ${field} ${order}
+            LIMIT ${offset},${limit}`, (err, result) => {
                 if (err) {
                     reject(new Error(err))
                 } else {
@@ -15,8 +22,10 @@ const modelProduct = {
     insert: (data) => {
         return new Promise((resolve, reject) => {
             db.query(`INSERT INTO product 
-            (product_name, product_type, description, stock, price, image) VALUES
-            ('${data.product_name}','${data.product_type}','${data.description}', ${data.stock}, '${data.price}', '${data.image}')`, (err,result) => {
+            (product_name, product_category, description, stock, price, image) VALUES
+            ('${data.product_name}',${data.product_category},
+            '${data.description}', ${data.stock},
+            '${data.price}', '${data.image}')`, (err, result) => {
                 if (err) {
                     reject(new Error(err))
                 } else {
@@ -26,8 +35,8 @@ const modelProduct = {
         })
     },
     update: (data, id) => {
-        return new Promise((resolve,reject) => {
-            db.query(`UPDATE product SET ? WHERE product_id = ?`, [data, id], (err,result) =>{
+        return new Promise((resolve, reject) => {
+            db.query(`UPDATE product SET ? WHERE product_id = ?`, [data, id], (err, result) => {
                 if (err) {
                     reject(err)
                 } else {
@@ -39,6 +48,17 @@ const modelProduct = {
     deleted: (id) => {
         return new Promise((resolve, reject) => {
             db.query(`DELETE FROM product WHERE product_id = ?`, id, (err, result) => {
+                if (err) {
+                    reject(new Error(err))
+                } else {
+                    resolve(result)
+                }
+            })
+        })
+    },
+    detail: (id) => {
+        return new Promise((resolve, reject) => {
+            db.query(`SELECT * FROM product WHERE product_id = ?`, id, (err, result) => {
                 if (err) {
                     reject(new Error(err))
                 } else {
