@@ -1,13 +1,14 @@
 const model = require('../model/users')
 const { Success, Failed } = require('../helper/response')
 const bcrypt = require('bcrypt')
+const sendMail = require('../helper/mail')
 
 const controllerUsers = ({
     register: async (req, res) => {
         try {
             const body = req.body
             if (!body.email || !body.username || !body.password) {
-                console.log('Cannot be empty!')
+                console.log('Cannot be empty')
             } else {
                 const salt = await bcrypt.genSalt(10)
                 const hashPass = await bcrypt.hash(body.password, salt)
@@ -20,13 +21,14 @@ const controllerUsers = ({
                 const email = await model.checkEmail(data.email)
                 const username = await model.checkUname(data.username)
                 if (email.length > 0) { // jika alamat email sama dengan yang ada di db
-                    Failed(res, [], 'Email already exist!')
+                    Failed(res, [], 'Email already exist')
                 } else if (username.length > 0) {
                     Failed(res, [], 'Username has already been taken')
                 } else {
-                    model.register(data)
+                    await model.register(data)
                         .then((result) => {
-                            Success(res, result, 'Success Register Data')
+                            sendMail(data.email)
+                            Success(res, result, 'Success please check your email')
                         })
                         .catch((err) => {
                             console.log(err.message)
@@ -34,6 +36,13 @@ const controllerUsers = ({
 
                 }
             }
+        } catch (err) {
+            console.log(err.message)
+        }
+    },
+    verify: async (req, res) => {
+        try {
+            
         } catch (err) {
             console.log(err.message)
         }
