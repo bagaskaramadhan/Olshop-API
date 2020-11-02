@@ -11,6 +11,28 @@ const modelUsers = ({
                 }
             })
         })
+    },
+    checkEmail: (data) => {
+        return new Promise((resolve, reject) => {
+            db.query(`SELECT * FROM users WHERE email = ?`, data, (err, result) => {
+                if (err) {
+                    reject(new Error(err))
+                } else {
+                    resolve(result)
+                }
+            })
+        })
+    },
+    checkUname: (data) => {
+        return new Promise((resolve, reject) => {
+            db.query(`SELECT * FROM users WHERE username = ?`, data, (err, result) => {
+                if (err) {
+                    reject(new Error(err))
+                } else {
+                    resolve(result)
+                }
+            })
+        })
     }
 })
 
