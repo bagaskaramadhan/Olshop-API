@@ -1,7 +1,7 @@
 const nodemailer = require('nodemailer')
 const {HOSTURL, USERMAIL, USERPASS} = require('./env')
 
-const sendMail = (email) => {
+const sendMail = (email,token) => {
     const output = `<!DOCTYPE html>
     <html>
     
@@ -16,7 +16,7 @@ const sendMail = (email) => {
     
     <div class="container-fluid">
       <div class="row">
-        <a href="${HOSTURL}"
+        <a href="${HOSTURL}${token}"
         class="btn btn-primary btn-lg active" 
         role="button" 
         aria-pressed="true">

@@ -34,20 +34,9 @@ const modelUsers = ({
             })
         })
     },
-    // activation: (data) => {
-    //     return new Promise((resolve, reject) => {
-    //         db.query(`UPDATE users SET is_active = 1 WHERE email = ?`, data, (err, result) => {
-    //             if (err) {
-    //                 reject(new Error(err))
-    //             } else {
-    //                 resolve(result)
-    //             }
-    //         })
-    //     })
-    // },
-    login: (data) => {
+    activation: (email) => {
         return new Promise((resolve, reject) => {
-            db.query(`SELECT * FROM users WHERE email = ?`, data.email, (err, result) => {
+            db.query(`UPDATE users SET is_active = 1 WHERE email = ?`, email, (err, result) => {
                 if (err) {
                     reject(new Error(err))
                 } else {
@@ -56,9 +45,9 @@ const modelUsers = ({
             })
         })
     },
-    uptoken: (token, id) => {
+    login: (data) => {
         return new Promise((resolve, reject) => {
-            db.query(`UPDATE users SET token = ? WHERE id = ?`, [token, id], (err, result) => {
+            db.query(`SELECT * FROM users WHERE email = ?`, data.email, (err, result) => {
                 if (err) {
                     reject(new Error(err))
                 } else {
