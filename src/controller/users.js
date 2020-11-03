@@ -4,7 +4,6 @@ const bcrypt = require('bcrypt')
 const sendMail = require('../helper/mail')
 const JWT = require('jsonwebtoken')
 const { JWTVERIFY } = require('../helper/env')
-const path = require('path')
 
 const controllerUsers = {
     register: async (req, res) => {
@@ -24,13 +23,13 @@ const controllerUsers = {
                 if (err) {
                     Failed(res, [], err.message)
                 } else {
-                    // const email = await model.checkEmail(data.email)
-                    // const username = await model.checkUname(data.username)
-                    // if (email.length > 0) {
-                    //     Failed(res, [], 'email registered')
-                    // } else if (username.length > 0) {
-                    //     Failed(res, [], 'username has been taken')
-                    // } else {
+                    const email = await model.checkEmail(data.email)
+                    const username = await model.checkUname(data.username)
+                    if (email.length > 0) {
+                        Failed(res, [], 'email registered')
+                    } else if (username.length > 0) {
+                        Failed(res, [], 'username has been taken')
+                    } else {
                         const sendData = {
                             email: data.email,
                             password: data.password,
@@ -45,7 +44,7 @@ const controllerUsers = {
                             .catch((err) => {
                                 Failed(res, [], err.message)
                             })
-                    // }
+                    }
                 }
             })
         }

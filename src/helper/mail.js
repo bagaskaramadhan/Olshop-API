@@ -1,8 +1,8 @@
 const nodemailer = require('nodemailer')
-const {HOSTURL, USERMAIL, USERPASS} = require('./env')
+const { HOSTURL, USERMAIL, USERPASS } = require('./env')
 
-const sendMail = (email,token) => {
-    const output = `<!DOCTYPE html>
+const sendMail = (email, token) => {
+  const output = `<!DOCTYPE html>
     <html>
     
     <head>
@@ -28,25 +28,25 @@ const sendMail = (email,token) => {
     
     </html>
                 `
-    let transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 587,
-        secure: false,
-        requireTLS: true,
-        auth: {
-            user: USERMAIL,
-            pass: USERPASS
-        }
-    });
+  let transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,
+    requireTLS: true,
+    auth: {
+      user: USERMAIL,
+      pass: USERPASS
+    }
+  });
 
-    let Mail = {
-        from: `"Foodcourt-Team" <${USERMAIL}>`,
-        to: email,
-        subject: "Verification Email",
-        text: "Plaintext version of the message",
-        html: output
-    };
-    transporter.sendMail(Mail)
+  let Mail = {
+    from: `"Foodcourt-Team" <${USERMAIL}>`,
+    to: email,
+    subject: "Verification Email",
+    text: "Plaintext version of the message",
+    html: output
+  };
+  transporter.sendMail(Mail)
 }
 
 module.exports = sendMail
