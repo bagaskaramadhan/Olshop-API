@@ -18,6 +18,6 @@ router
     // USERS
     .post('/users/register', users.register)
     // .get('/activation/:token', users.verify)
-    // .post('/users/login', users.login)
+    .post('/users/login', users.login)
 
 module.exports = router

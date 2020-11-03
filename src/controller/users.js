@@ -48,6 +48,32 @@ const controllerUsers = {
                 }
             })
         }
+    },
+    login: async (req, res) => {
+        const body = req.body
+        if (!body.email || !body.password) {
+            Failed(res, [], 'cannot empty')
+        } else {
+            const data = {
+                email: body.email.toLowerCase(),
+                password: body.password
+            }
+            await model.login(data)
+            .then(async(result) => {
+                const results = result[0]
+                if (!results) {
+                    Failed(res, [], 'email not registered')
+                } else {
+                    const password = results.password
+                    const isMatch = await bcrypt.compare(body.password, password)
+                    if (!isMatch) {
+                        Failed(res, [], 'wrong password')
+                    } else {
+                        Success(res, results, 'login success')
+                    }
+                }
+            })
+        }
     }
 }
 
