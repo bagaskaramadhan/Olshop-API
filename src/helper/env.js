@@ -8,5 +8,6 @@ module.exports = {
     DATABASE: process.env.DB_NAME,
     HOSTURL: process.env.URLHOST,
     USERMAIL: process.env.MAILUSER,
-    USERPASS: process.env.PASSUSER
+    USERPASS: process.env.PASSUSER,
+    JWTVERIFY: process.env.JWTVERI
 }

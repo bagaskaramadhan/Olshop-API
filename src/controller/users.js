@@ -2,51 +2,53 @@ const model = require('../model/users')
 const { Success, Failed } = require('../helper/response')
 const bcrypt = require('bcrypt')
 const sendMail = require('../helper/mail')
+const JWT = require('jsonwebtoken')
+const { JWTVERIFY } = require('../helper/env')
 
-const controllerUsers = ({
+const controllerUsers = {
     register: async (req, res) => {
-        try {
-            const body = req.body
-            if (!body.email || !body.username || !body.password) {
-                console.log('Cannot be empty')
-            } else {
-                const salt = await bcrypt.genSalt(10)
-                const hashPass = await bcrypt.hash(body.password, salt)
-                const data = {
-                    email: body.email.toLowerCase(),
-                    password: hashPass,
-                    username: body.username,
-                    fullname: body.username
-                }
-                const email = await model.checkEmail(data.email)
-                const username = await model.checkUname(data.username)
-                if (email.length > 0) { // jika alamat email sama dengan yang ada di db
-                    Failed(res, [], 'Email already exist')
-                } else if (username.length > 0) {
-                    Failed(res, [], 'Username has already been taken')
+        const body = req.body
+        if (!body.email || !body.password || !body.username) {
+            Failed(res, [], 'Cannot empty')
+        } else {
+            const salt = await bcrypt.genSalt(10)
+            const hashPass = await bcrypt.hash(body.password, salt)
+            const data = {
+                username: body.username,
+                email: body.email.toLowerCase(),
+                password: hashPass,
+                fullname: body.username
+            }
+            JWT.sign({data: data.email}, JWTVERIFY, async (err, result) => {
+                if (err) {
+                    Failed(res, [], err.message)
                 } else {
-                    await model.register(data)
-                        .then((result) => {
-                            sendMail(data.email)
-                            Success(res, result, 'Success please check your email')
+                    const email = await model.checkEmail(data.email)
+                    const username = await model.checkUname(data.username)
+                    if (email.length > 0) {
+                        Failed(res, [], 'email registered')
+                    } else if (username.length > 0) {
+                        Failed(res, [], 'username has been taken')
+                    } else {
+                        const sendData = {
+                            email: data.email,
+                            password: data.password,
+                            username: data.username,
+                            token: result
+                        }
+                        await model.register(sendData)
+                        .then(() => {
+                            sendMail(sendData.email, sendData.token)
+                            Success(res, sendData, 'check email activation')
                         })
                         .catch((err) => {
-                            console.log(err.message)
+                            Failed(res, [], err.message)
                         })
-
+                    }
                 }
-            }
-        } catch (err) {
-            console.log(err.message)
-        }
-    },
-    verify: async (req, res) => {
-        try {
-            
-        } catch (err) {
-            console.log(err.message)
+            })
         }
     }
-})
+}
 
 module.exports = controllerUsers

@@ -17,5 +17,7 @@ router
     .delete('/category/deleted/:category_id', category.deleted)
     // USERS
     .post('/users/register', users.register)
+    // .get('/activation/:token', users.verify)
+    // .post('/users/login', users.login)
 
 module.exports = router

@@ -1,0 +1,97 @@
+,
+    register1: (req, res) => {
+        const body = req.body
+        if (!body.name || !body.email || !body.password) {
+          Failed(res, [], 'Name, email or password is required!')
+        } else {
+          const name = body.name
+          const nameSplit = name.split(' ')
+          const data = {
+            name: body.name,
+            email: body.email.toLowerCase(),
+            username: nameSplit.join(' '),
+            password: bcrypt.hashSync(body.password, 10)
+          }
+          jwt.sign({ data: data.email }, JWTREGISTER, (err, response) => {
+            if (err) {
+              Failed(res, [], err.message)
+              console.log(err.message)
+            } else {
+              usersModel.getEmail(data.email)
+                .then((result) => {
+                  if (result.length === 0) {
+                    const sendData = {
+                      name: data.name,
+                      email: data.email,
+                      username: data.username,
+                      password: data.password,
+                      token: response
+                    }
+                    usersModel.register(sendData)
+                      .then((results) => {
+                        sendMail(sendData.email, sendData.token)
+                        success(res, results, 'Register success!')
+                      })
+                      .catch((err) => {
+                        Failed(res, [], err.message)
+                      })
+                  } else {
+                    Failed(res, [], 'Email is already registered!')
+                  }
+                })
+                .catch((err) => {
+                  Failed(res, [], err.message)
+                })
+            }
+          });
+        }
+      },
+      verify: (req, res) => {
+        const token = req.params.token
+        jwt.verify(token, JWTREGISTER, (err, decode) => {
+          if(err) {
+            Failed(res, [], 'Failed Auth!')
+          } else {
+            // const data = jwt.decode(token)
+            const email = decode.data
+            usersModel.activation(email).then(() => {
+              res.render('index', {email})
+              // console.log('ok')
+              // res.json({msg: 'oke'})
+            }).catch(err => {
+              Failed(res, [], err.message)
+            })
+          }
+        })
+      },    
+      login: (req, res) => {
+        const body = req.body
+        if (!body.email || !body.password) {
+          Failed(res, [], 'Email or password is required!')
+        } else {
+          const data = {
+            email: req.body.email.toLowerCase(),
+            password: req.body.password
+          }
+          usersModel.login(data)
+            .then((result) => {
+              const results = result[0]
+              if (!results) {
+                Failed(res, [], 'Email not registered, please register')
+              } else if (results.is_active === 0) {
+                Failed(res, [], 'Please Active Email First')
+              }
+              else {
+                const password = results.password
+                const isMatch = bcrypt.compareSync(data.password, password)
+                if (isMatch) {
+                  success(res, results, 'Login Success')
+                } else {
+                  Failed(res, [], 'Email or password is wrong!')
+                }
+              }
+            }).catch((err) => {
+              Failed(res, [], err.message)
+            });
+        }
+      }
