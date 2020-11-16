@@ -4,8 +4,6 @@ const { PORT } = require('./src/helper/env')
 const router = require('./src/router/router')
 const bodyParser = require('body-parser')
 const path = require('path')
-// const PORT = process.env.PORT || 5000
-
 
 app.set('views', path.join(__dirname, 'src/views'));
 app.set('view engine', 'ejs');
